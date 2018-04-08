@@ -41,6 +41,12 @@
               .grd-row-col-3-6 Name
               .grd-row-col-3-6
                 strong {{ stratName }}
+            a.btn--primary(href='#', v-on:click.prevent='switchToggle', v-if='toggle === "closed"') Change trader settings
+            template(v-if='toggle === "open"')
+              p New Parameters:
+              textarea.params(v-model='stratParams')
+              a.btn--primary(href="#", v-on:click.prevent='updateStratParams') Update
+            .hr
             | Parameters
             pre {{ stratParams }}
           .grd-row-col-3-6
@@ -103,7 +109,8 @@ export default {
   data: () => {
     return {
       candleFetch: 'idle',
-      candles: false
+      candles: false,
+      toggle: 'closed'
     }
   },
   computed: {
@@ -144,7 +151,6 @@ export default {
 
       if(_.isEmpty(stratParams))
         return 'No parameters'
-
       return JSON.stringify(stratParams, null, 4);
     },
     isLoading: function() {
@@ -209,7 +215,20 @@ export default {
           return c;
         });
       })
-    }
+    },
+    switchToggle: function() {
+      if(this.toggle === 'open')
+        this.toggle = 'closed';
+      else
+        this.toggle = 'open';
+    },
+    updateStratParams: function(params) {
+      this.stratParams = params;
+      this.emitConfig();
+    },
+    emitConfig: function() {
+      this.$emit('stratParams', this.updatedStratParams); 
+    },
   }
 }
 </script>
